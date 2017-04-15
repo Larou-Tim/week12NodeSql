@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var private = require("./password.js")
+var private = require("./ignore/password.js")
 
 var connection = mysql.createConnection({
     host: "localhost",
