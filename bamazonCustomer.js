@@ -39,8 +39,12 @@ function selectQuery(ID, quantity) {
     connection.query(query, function (err, results) {
         if (err) throw err;
         if (results[0].stock_quantity >= quantity) {
-            updateQuery(ID, (results[0].stock_quantity - quantity));
-            console.log("This transaction cost:", results[0].price * quantity)
+            var currentCost = results[0].price * quantity;
+            var currentRevenue = results[0].product_sales || 0;
+
+            updateQuery(ID, (results[0].stock_quantity - quantity), (currentRevenue + currentCost));
+            updateDepartmentSales(results[0].department_name, (currentRevenue + currentCost));
+            console.log("This transaction cost:", currentCost)
         }
         else {
             console.log("Insufficient Quantity! We only have",
@@ -49,12 +53,50 @@ function selectQuery(ID, quantity) {
     });
 }
 
-function updateQuery(ID, newQuantity) {
+function updateQuery(ID, newQuantity, totalSales) {
     var query = {
-        sql: "UPDATE products SET stock_quantity = ? WHERE item_id = ?",
-        values: [newQuantity, ID]
+        sql: "UPDATE products SET stock_quantity = ?, product_sales = ?  WHERE item_id = ?",
+        values: [newQuantity, totalSales, ID]
     };
     connection.query(query, function (err, results) {
         if (err) throw err;
     });
 }
+
+function updateDepartmentSales(departmentName, newTotal) {
+    //test if department is already there
+    var query = {
+        sql: "SELECT * FROM departments WHERE department_name = ?",
+        values: [departmentName]
+    };
+    connection.query(query, function (err, results) {
+        if (err) throw err;
+
+        if (results[0]) {
+            //if department is there update it
+            var query = {
+                sql: "UPDATE departments SET total_sales = ? WHERE department_name = ?",
+                values: [newTotal, departmentName]
+            };
+            connection.query(query, function (err, results) {
+                if (err) throw err;
+            });
+        }
+
+        else {
+            //if department is not there, add it
+            var insertQuery = {
+                sql: "INSERT INTO departments (department_name, over_head_costs ,total_sales) VALUES (?,?,?)",
+                values: [departmentName, (newTotal * .8), newTotal]
+            };
+            connection.query(insertQuery, function (err, results) {
+                if (err) throw err;
+            });
+        }
+    });
+
+
+
+
+}
+
