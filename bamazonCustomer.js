@@ -16,21 +16,25 @@ connection.connect(function (err) {
     }
 });
 
-inquirer.prompt([
-    {
-        type: "input",
-        message: "What is the ID of the product you would like to buy?",
-        name: "prodID",
-    },
-    {
-        type: "input",
-        message: "How many would you like to buy?",
-        name: "amount",
-    },
+startMenu(); 
 
-]).then(function (user) {
-    selectQuery(user.prodID, user.amount);
-});
+function startMenu() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the ID of the product you would like to buy?",
+            name: "prodID",
+        },
+        {
+            type: "input",
+            message: "How many would you like to buy?",
+            name: "amount",
+        },
+
+    ]).then(function (user) {
+        selectQuery(user.prodID, user.amount);
+    });
+}
 
 function selectQuery(ID, quantity) {
     var query = {
@@ -51,6 +55,7 @@ function selectQuery(ID, quantity) {
             console.log("Insufficient Quantity! We only have",
                 results[0].stock_quantity, results[0].product_name);
         }
+        startMenu();
     });
 }
 
