@@ -15,12 +15,10 @@ connection.connect(function (err) {
     }
 });
 
-
-
 inquirer.prompt([
     {
         type: "input",
-        message: "What the ID of the product you would like to buy?",
+        message: "What is the ID of the product you would like to buy?",
         name: "prodID",
     },
     {
@@ -30,9 +28,7 @@ inquirer.prompt([
     },
 
 ]).then(function (user) {
-
     selectQuery(user.prodID, user.amount);
-
 });
 
 function selectQuery(ID, quantity) {
